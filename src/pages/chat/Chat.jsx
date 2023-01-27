@@ -6,8 +6,9 @@ function Chat() {
   return (
     <div>
       <Header />
-      <div style={{ height: "160px" }}></div>
+      <div style={{ height: "70px" }}></div>
       <Body />
+      <div style={{ height: "90px" }}></div>
     </div>
   );
 }

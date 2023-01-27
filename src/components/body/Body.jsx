@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Message from "../message/Message";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -16,19 +16,39 @@ function Body() {
   const messages = useSelector((state) => state.chat.chatArray);
   const dispatch = useDispatch();
 
+  const goToDown = () => {
+    window.scrollTo({
+      top: 9999999999,
+      behavior: "smooth",
+    });
+  };
+
   const sendMessage = () => {
     const messageObject = {
       message: message,
       name: username,
     };
-    socket.emit("send-message", messageObject);
-    dispatch(addMessage({ ...messageObject, id: 1 }));
+    if (message !== "") {
+      socket.emit("send-message", messageObject);
+      dispatch(addMessage({ ...messageObject, id: 1 }));
+    }
+
     setMessage("");
   };
 
-  socket.on("new-message", (message) => {
-    dispatch(addMessage({ ...message, id: 2 }));
+  useEffect(() => {
+    socket.on("new-message", (message) => {
+      dispatch(addMessage({ ...message, id: 0 }));
+    });
+
+    return () => {
+      socket.off("new-message");
+    };
   });
+
+  useEffect(() => {
+    goToDown();
+  }, [messages]);
 
   const handleChange = (e) => {
     setMessage(e.target.value);
@@ -42,7 +62,7 @@ function Body() {
           position: "fixed",
           right: "0",
           left: "0",
-          top: "70px",
+          bottom: "0",
           zIndex: "3",
           height: "90px",
           backgroundColor: "rgb(219, 186, 142)",
@@ -65,6 +85,7 @@ function Body() {
               variant="contained"
               sx={{ margin: 2, height: 55, width: "86%" }}
               onClick={sendMessage}
+              focus
             >
               Send
               <InputAdornment
